@@ -44,8 +44,9 @@ class Index:
         """
         # IMPLEMENTATION
         # ---- start your code ---- #
-        pass
-
+        m = m.rstrip('\n')
+        self.msgs.append(m)  # update msgs
+        self.total_msgs += 1  # update total_msgs
         # ---- end of your code --- #
         return
 
@@ -62,7 +63,20 @@ class Index:
 
         # IMPLEMENTATION
         # ---- start your code ---- #
-        pass
+        words = m.rstrip('\n').split(' ')
+        punctuation = ['.', ',', ':', ';', '!', '?']
+        for i in words:
+            # removing the punction at the end of each line when a line has
+            # more than one word
+            if len(i) > 0 and i[-1] in punctuation:
+                if len(words) > 1:
+                    i = i[:-1]
+            if i not in self.index.keys():  # if the word is not in self.index, create a new entry
+                self.index[i] = [l]
+            else:  # update line number if the word exists
+                if l not in self.index[i]:  # screen the repeated words
+                    self.index[i].append(l)
+            self.total_words += 1
 
         # ---- end of your code --- #
         return
@@ -83,7 +97,10 @@ class Index:
         msgs = []
         # IMPLEMENTATION
         # ---- start your code ---- #
-        pass
+        if term not in self.index.keys():  # return None if term doesn't exist
+            return None
+        for i in self.index[term]:
+            msgs.append((i, self.msgs[i]))
 
         # ---- end of your code --- #
         return msgs
@@ -104,8 +121,9 @@ class PIndex(Index):
         """
         # IMPLEMENTATION
         # ---- start your code ---- #
-        pass
-
+        msglines = open(self.name, 'r').readlines()  # read file in lines
+        for i in msglines:
+            self.add_msg_and_index(i)
         # ---- end of your code --- #
         return
 
@@ -135,7 +153,19 @@ class PIndex(Index):
         poem = []
         # IMPLEMENTATION
         # ---- start your code ---- #
-        pass
+        #  fine the starting line
+        roman = self.int2roman[p]
+        roman = roman + '.'
+        start = self.search(roman)[0][0]
+        # find the srating line of next poem or the end of the file
+        roman_next = self.int2roman[p + 1]
+        roman_next = roman_next + '.'
+        end = self.search(roman_next)
+        if end is not None:  # discard the three empty lines at the end
+            end = end[0][0] - 3
+        else:
+            end = -3
+        poem.extend(self.msgs[start:end])  # add the poem to the list
 
         # ---- end of your code --- #
         return poem
@@ -144,7 +174,7 @@ class PIndex(Index):
 if __name__ == "__main__":
     sonnets = PIndex("AllSonnets.txt")
     # the next two lines are just for testing
-    p3 = sonnets.get_poem(3)
+    p3 = sonnets.get_poem(154)
     print(p3)
     s_love = sonnets.search("love")
     print(s_love)
