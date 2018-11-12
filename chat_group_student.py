@@ -31,8 +31,8 @@ class Group:
 
         # IMPLEMENTATION
         # ---- start your code ---- #
-        pass
-
+        if name in self.members.keys():
+            return True
         return False
         # ---- end of your code --- #
 
@@ -43,8 +43,11 @@ class Group:
         """
         # IMPLEMENTATION
         # ---- start your code ---- #
-        pass
-
+        found, key = self.find_group(name)
+        if found:
+            self.disconnect(name)
+        if self.is_member(name):
+            del self.members[name]
         # ---- end of your code --- #
         return
 
@@ -59,8 +62,11 @@ class Group:
         group_key = 0
         # IMPLEMENTATION
         # ---- start your code ---- #
-        pass
-
+        for i in self.chat_grps.keys():
+            if name in self.chat_grps[i]:
+                found = True
+                group_key = i
+                break
         # ---- end of your code --- #
         return found, group_key
 
@@ -74,7 +80,14 @@ class Group:
 
         # IMPLEMENTATION
         # ---- start your code ---- #
-        pass
+        if peer_in_group:
+            self.chat_grps[group_key].append(me)
+            self.members[me] = S_TALKING
+        else:
+            self.grp_ever+=1
+            self.chat_grps[self.grp_ever]=[me,peer]
+            self.members[me] = S_TALKING
+            self.members[peer] = S_TALKING
 
         # ---- end of your code --- #
         return
@@ -86,8 +99,18 @@ class Group:
         """
         # IMPLEMENTATION
         # ---- start your code ---- #
-        pass
-
+        found, group_key = self.find_group(me)
+        if found:
+            if len(self.chat_grps[group_key]) <= 2:
+                for i in self.chat_grps[group_key]:
+                    self.members[i] = S_ALONE
+                del self.chat_grps[group_key]
+            else:
+                for i in range(len(self.chat_grps[group_key])):
+                    if self.chat_grps[group_key][i] == me:
+                        break
+                del self.chat_grps[group_key][i]
+                self.members[me] = S_ALONE
         # ---- end of your code --- #
         return
 
@@ -107,8 +130,12 @@ class Group:
         my_list = []
         # IMPLEMENTATION
         # ---- start your code ---- #
-        pass
-
+        my_list.append(me)
+        found, key = self.find_group(me)
+        if found:
+            for i in self.chat_grps[key]:
+                if i != me:
+                    my_list.append(i)
         # ---- end of your code --- #
         return my_list
 
