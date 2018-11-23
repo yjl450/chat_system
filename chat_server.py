@@ -119,7 +119,7 @@ class Server:
                         {"action": "connect", "status": "no-user"})
                 mysend(from_sock, msg)
 # ==============================================================================
-# handle messeage exchange: IMPLEMENT THIS
+# handle message exchange: IMPLEMENT THIS
 # ==============================================================================
             elif msg["action"] == "exchange":
                 from_name = self.logged_sock2name[from_sock]
@@ -128,8 +128,12 @@ class Server:
                 """
                 # IMPLEMENTATION
                 # ---- start your code ---- #
-                pass
-
+                ctime = time.strftime('%H:%M:%S', time.localtime())
+                msg_sent = '(' + from_name + ')' + ctime + ' ' + msg["message"]
+                if from_name not in self.indices.keys():
+                    new_index = indexer.Index(from_name)
+                    self.indices[from_name] = new_index
+                self.indices[from_name].add_msg_and_index(msg_sent)
                 # ---- end of your code --- #
 
                 the_guys = self.group.list_me(from_name)[1:]
@@ -138,10 +142,9 @@ class Server:
 
                     # IMPLEMENTATION
                     # ---- start your code ---- #
-                    pass
-                    mysend(
-                        to_sock, "...Remember to index the messages before sending, or search won't work")
-
+                    msg_sent = msg["message"]
+                    mysend(to_sock, json.dumps(
+                            {"action": "exchange", "message": msg_sent, "from": from_name}))
                     # ---- end of your code --- #
 
 # ==============================================================================
@@ -164,9 +167,8 @@ class Server:
 
                 # IMPLEMENTATION
                 # ---- start your code ---- #
-                pass
-                msg = "...needs to use self.group functions to work"
-
+                from_name = self.logged_sock2name[from_sock]
+                msg = self.group.list_all(from_name)
                 # ---- end of your code --- #
                 mysend(from_sock, json.dumps(
                     {"action": "list", "results": msg}))
@@ -177,10 +179,10 @@ class Server:
 
                 # IMPLEMENTATION
                 # ---- start your code ---- #
-                pass
-                poem = "...needs to use self.sonnet functions to work"
-                print('here:\n', poem)
-
+                index = int(msg["target"])
+                poem = self.sonnet.get_poem(index)
+                print('here:\n',poem)
+                poem = '\n'.join(poem)
                 # ---- end of your code --- #
 
                 mysend(from_sock, json.dumps(
@@ -199,8 +201,16 @@ class Server:
 
                 # IMPLEMENTATION
                 # ---- start your code ---- #
-                pass
-                search_rslt = "needs to use self.indices search to work"
+                target = msg["target"]
+                search_rslt = []
+                real_result = []
+                for key in self.indices.keys():
+                    result = self.indices[key].search(target)
+                    if result:
+                        real_result = [i[1] for i in result]
+                        print("******",real_result)
+                    search_rslt.extend(real_result)
+                search_rslt = '\n'.join(search_rslt)
                 print('server side search: ' + search_rslt)
 
                 # ---- end of your code --- #

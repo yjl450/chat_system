@@ -9,7 +9,7 @@ import pickle
 class Index:
     def __init__(self, name):
         self.name = name
-        self.msgs = [];
+        self.msgs = []
         self.index = {}
         self.total_msgs = 0
         self.total_words = 0
@@ -85,6 +85,6 @@ class PIndex(Index):
 if __name__ == "__main__":
     sonnets = PIndex("AllSonnets.txt")
     p3 = sonnets.get_poem(3)
-    print(p3)
-    s_love = sonnets.search("love")
+    # print(p3)
+    s_love = sonnets.search("soul")
     print(s_love)
